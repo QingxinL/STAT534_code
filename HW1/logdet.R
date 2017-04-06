@@ -6,3 +6,8 @@ logdet <- function(mat1){
   return(log_det)
 }
 
+logmarglik <- function(data, A){
+  
+}
+
+mydata = read.table("~/Course/STAT534/STAT534_code/erdata.txt")
