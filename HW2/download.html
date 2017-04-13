@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Canvas Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Test for saved preference and redirect before loading page, saves ~100ms -->
+    <script>
+        var host = "https://canvas.uw.edu",
+            cookie_name = "canvas_wayf_preference",
+            saved_idp,
+            login_urls = {};
+
+        if (window.location.href.match(/-(test|beta)$/)) {
+            host = "https://uw." + RegExp.$1 + ".instructure.com";
+        }
+        login_urls["weblogin_option"] = host + "/login/83";
+        login_urls["google_option"] = host + "/login/792";
+
+        function getCookie(name) {
+            var cookieValue,
+                cookies,
+                cookie,
+                i;
+            if (document.cookie && document.cookie !== "") {
+                cookies = document.cookie.split(";");
+                for (i = 0; i < cookies.length; i++) {
+                    cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) == (name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function setCookie(name, value, expire_days) {
+            var cookie_value,
+                expires_date = new Date();
+            expires_date.setDate(expires_date.getDate() + expire_days);
+            cookie_value = escape(value) + ((expire_days === null) ? ""
+                : "; expires=" + expires_date.toUTCString() + "; path=/");
+            document.cookie = name + "=" + cookie_value;
+        }
+
+        function getParameterByName(name) {
+            name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return (results === null) ? ""
+                : decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+
+        if (getParameterByName("reset") === "1") {
+            setCookie(cookie_name, "", -1);
+        } else {
+            saved_idp = getCookie(cookie_name);
+            if (saved_idp !== undefined && login_urls.hasOwnProperty(saved_idp)) {
+                window.location.href = login_urls[saved_idp];
+            }
+        }
+    </script>
+
+    <link rel="stylesheet" type="text/css" href="/wayf/static/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="/wayf/static/bootstrap/css/bootstrap-responsive.min.css" />
+    <link rel="shortcut icon" href="/wayf/static/img/favicon.ico" />
+
+    <style type="text/css">
+      body {
+        padding-top: 40px;
+        padding-bottom: 40px;
+        background: url('/wayf/static/img/bg.jpg');
+        font-family: "Open Sans", Helvetica, Arial, sans-serif;
+      }
+
+      .container { max-width: 450px; }
+
+      .form-signin {
+        padding: 19px 29px 29px;
+        margin: 10px auto 20px;
+        background: #39275B url('/wayf/static/img/canvas_Wayf-logo.png') no-repeat 20px 20px;
+        border: 1px solid #e5e5e5;
+        -webkit-border-radius: 5px;
+           -moz-border-radius: 5px;
+                border-radius: 5px;
+        -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+           -moz-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+                box-shadow: 0 1px 2px rgba(0,0,0,.05);
+                color: #fff;
+        padding-top: 80px;
+      }
+      .form-signin .form-signin-heading,
+      .form-signin .checkbox {
+        margin-bottom: 10px;
+      }
+      .form-signin input[type="text"],
+      .form-signin input[type="password"] {
+        font-size: 16px;
+        height: auto;
+        margin-bottom: 15px;
+        padding: 7px 9px;
+      }
+      .sr-only {
+          position:absolute;
+          width:1px;
+          height:1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0 0 0 0);
+          border:0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+        <div class="form-signin" role="main" aria-labelledby="login_header">
+            <h1 class="sr-only" id="login_header">UW Canvas login</h1>
+            <form>
+            <p style="color:#bdb7c8; margin-top:10px;">You are required to log into your account:</p>
+            <ul class="clearfix" style="margin-top:30px; height:45px;">
+                <li id="weblogin_logo" class="pull-left" style="width:50%; list-style:none;">
+                    <label class="radio" style="margin-right:30px;" for="uw_login"><input type="radio" name="idp_option" id="uw_login" value="weblogin_option" checked="checked"><img src="/wayf/static/img/NetID-logo-reverse-200x80.png" alt="Login with your UW NetID" ></label>
+                </li>
+                <li id="google_logo" class="pull-right" style="width:50%; list-style:none;">
+                    <p id="social_login_container" style="color:#bdb7c8;">Don't have a UW NetID?<br/><a id="google_link" href="#" style="font-size:smaller;">Log in with a non-UW account</a></p>
+                    <label id="google_option_label" class="radio muted hide" for="google_login"><input type="radio" name="idp_option" id="google_login" value="google_option"><img src="/wayf/static/img/google-2015-logo-96x32.png" alt="login with your Google account" ></label>
+                </li>
+            </ul>
+            <div class="clearfix" style="margin-top:30px;">
+            <div class="pull-left">
+                <label class="checkbox" style="color:#bdb7c8; margin-top:5px; margin-bottom:0; font-size:smaller;" for="remember_option">
+                    <input id="remember_option" type="checkbox"/> Remember my <span class="sr-only">login</span> choice for this computer
+                </label>
+            </div>
+            <div class="pull-right" style="text-align:right;">
+                <button id="login" type="submit"><i class="icon-circle-arrow-right"></i> Login</button>
+            </div>
+            </div>
+            </form>
+        </div>
+    </div> <!-- /container -->
+
+    <script src="/wayf/static/js/jquery-1.8.3.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $("input[name=idp_option]").change(function (ev) {
+                if ($(this).val() == "google_option") {
+                    $("#social_login_container").hide();
+                    $("#google_option_label").removeClass("hide");
+                } else {
+                    $("#google_option_label").addClass("hide");
+                    $("#social_login_container").show();
+                }
+                $("#login").focus();
+            });
+            $("#google_link").click(function (ev) {
+                $("#google_login").prop("checked", true);
+                $("input[name=idp_option]").trigger("change");
+                ev.preventDefault();
+            });
+            $("#login").click(function (ev) {
+                var selected_idp = $("input[name=idp_option]:checked").val();
+                ev.preventDefault();
+
+                if ($("#remember_option").is(":checked")) {
+                    setCookie(cookie_name, selected_idp, 999);
+                }
+                window.location.href = login_urls[selected_idp];
+            }).focus();
+        });
+    </script>
+  </body>
+</html>
