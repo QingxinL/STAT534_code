@@ -110,7 +110,7 @@ modelSelectionMC3 <- function(response, explanatory, data, iterations)
   while(iter < iterations)
   {
     iter = iter + 1;
-    cat('\niter = ', iter);
+    # cat('\niter = ', iter);
     # step 1,2
     nbd_Ar = nbdValid(response, A_r, explanatory, data);
     # step 3
@@ -119,14 +119,17 @@ modelSelectionMC3 <- function(response, explanatory, data, iterations)
     nbd_Ap = nbdValid(response, A_p, explanatory, data);
     
     # step 5, 6
-    p_Ap = -getLogisticAIC(response, A_p, data) - log(length(nbd_Ap));
-    p_Ar = -getLogisticAIC(response, A_r, data) - log(length(nbd_Ar)); 
+    AIC_Ap = getLogisticAIC(response, A_p, data);
+    AIC_Ar = getLogisticAIC(response, A_r, data);
+    AIC_Best = getLogisticAIC(response, bestModel, data);
+    p_Ap = - AIC_Ap - log(length(nbd_Ap));
+    p_Ar = - AIC_Ar - log(length(nbd_Ar)); 
     
     # step 7
     if (p_Ap > p_Ar) 
     {
       A_r = A_p;
-      if (getLogisticAIC(response, A_p, data) < getLogisticAIC(response, bestModel, data))
+      if (AIC_Ap < AIC_Best)
       {
         bestModel = A_p;
       }
@@ -141,7 +144,7 @@ modelSelectionMC3 <- function(response, explanatory, data, iterations)
       if (log(u) < (p_Ap - p_Ar)) 
       {
         A_r = A_p;
-        if (getLogisticAIC(response, A_p, data) < getLogisticAIC(response, bestModel, data))
+        if (AIC_Ap < AIC_Best)
         {
           bestModel = A_p;
         }
@@ -179,8 +182,8 @@ main <- function(datafile)
   
   result = modelSelectionMC3(response, explanatory, data, 25);
   
-  cat('\n best model is ', result$model);
-  cat('\n\nBest AIC = ', result$AIC);
+  cat('\n\nbest model is ', result$model);
+  cat('\nBest AIC = ', result$AIC);
   # Problem 1
   # for the small dataset, the result is 
   # 
@@ -189,13 +192,11 @@ main <- function(datafile)
   {
     result = modelSelectionMC3(response, explanatory, data, 25);
     
-    cat('\n best model is ', result$model);
-    cat('\n\nBest AIC = ', result$AIC);
+    cat('\n\nbest model is ', result$model);
+    cat('\nBest AIC = ', result$AIC);
   }
   
 }
-# explanatory  = c(1:3);
-# isValidLogisticRCDD(response, c(1:3), data)
 
 setwd("~/Course/STAT534/STAT534_code/HW3")
 main('534binarydatasmall.txt')
