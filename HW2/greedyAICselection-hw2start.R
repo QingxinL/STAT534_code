@@ -324,7 +324,7 @@ main <- function(datafile)
   
 }
 
-# setwd("~/Course/STAT534/STAT534_code/HW2")
+setwd("~/Course/STAT534/STAT534_code/HW2")
 main('534binarydata.txt')
 
 # result ----------------------------------------------------------------

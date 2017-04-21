@@ -179,7 +179,7 @@ main <- function(datafile)
   response = ncol(data);
   lastPredictor = ncol(data) - 1;
   
-  
+  explanatory = c(1:lastPredictor);
   result = modelSelectionMC3(response, explanatory, data, 25);
   
   cat('\n\nbest model is ', result$model);
