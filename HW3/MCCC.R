@@ -110,7 +110,7 @@ modelSelectionMC3 <- function(response, explanatory, data, iterations)
   while(iter < iterations)
   {
     iter = iter + 1;
-    # cat('\niter = ', iter);
+    cat('\niter = ', iter);
     # step 1,2
     nbd_Ar = nbdValid(response, A_r, explanatory, data);
     # step 3
@@ -188,7 +188,7 @@ main <- function(datafile)
   # for the small dataset, the result is 
   # 
   # Problem 2
-  for (i in c(1:9))
+  for (i in c(1:19))
   {
     result = modelSelectionMC3(response, explanatory, data, 25);
     
@@ -197,6 +197,7 @@ main <- function(datafile)
   }
   
 }
+tempdir()
 
 setwd("~/Course/STAT534/STAT534_code/HW3")
-main('534binarydatasmall.txt')
+main('534binarydata.txt')
