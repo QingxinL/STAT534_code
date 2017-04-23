@@ -181,28 +181,43 @@ main('534binarydata.txt')
 ####### PROBLEM 1
 ##############################################################
 # for small dataset
-best model is  10 2 9 7 8 5 1 4 6 3
-Best AIC =  112.8834
-
-best model is  5 2 7 6 10 3 4 9 1 8
-Best AIC =  112.8834
-The results are very similiar to greedy search.
+# best model is  10 2 9 7 8 5 1 4 6 3
+# Best AIC =  112.8834
+# 
+# best model is  5 2 7 6 10 3 4 9 1 8
+# Best AIC =  112.8834
+# The results are very similiar to greedy search.
 #
 # Problem 2
-# The effiency of this algorithm is not very good, so I got results for 5 instances.
+# The effiency of this algorithm is not very good, so I got results for 10 instances.
 # The results of MCCC algorithm are different due to its random itialize parameters and sample.
 # For this dataset, the algorithm performs better than greedy search
 # best model is  12 55 27 26 58 35 39 28 30 29 47 44 41 4 50 49 3 56 2 52 53 10 40 20 15 34
 # Best AIC =  83.97523
-#
+# 
 # best model is  15 19 1 44 20 25 3 59 17 21 28 36 30 45
 # Best AIC =  90.71816
-#
+# 
 # best model is  12 8 52 48 53 15 19 45 4 36 57 16 22 31 26 24 38 43 14 21 55 25 30 59 39 9 10 58
 # Best AIC =  131.0038
-#
+# 
 # best model is  18 54 60 6 47 53 25 49 14 59 17 8 1 42 50 38 33 21 55 9 22 39 30 4 24
 # Best AIC =  111.8044
-#
+# 
 # best model is  50 20 8 47 16 37 29 33 13 25 21 17 49 24 54 36 19 2
 # Best AIC =  100.8705
+# 
+# best model is  7 44 17 9 47 55 13 4 51 16 24 27 22 12 48 43 52 49 36 26 42 37 14 40 33 31 18 6 30 53 59 25 39 1 54 28 57 50
+# Best AIC =  116.6494
+# 
+# best model is  23 1 27 24 33
+# Best AIC =  128.9783
+# 
+# best model is  41 39 16 44 38 5 4 30 45 58 3 34 47 29 46 49 18 43 37 36 59
+# Best AIC =  110.6611
+# 
+# best model is  19 55 44 6 31 49 43 51 50 28 12 45 15 26 33 10 35 30 11 59 29 60 58 47 9 37 40 5 8 14 48 16 54 17 2 36 7 32 57 18 25 46 3 13
+# Best AIC =  131.4252
+# 
+# best model is  28 51 26 29 5 30
+# Best AIC =  159.4519
