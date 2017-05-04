@@ -108,15 +108,57 @@ laplaceLogLik <- function(explanatory, response, data)
   return(marginLH);
 }
 
+# sample u from uniform (0,1) distribution and make the decision
+sampleU <- function(lhCandidate, lhCurrent)
+{
+  u = runif(1, min = 0, max = 1);
+  if (log(u) <= (lhCandidate - lhCurrent))
+  {
+      return(TRUE)  
+  }
+  else
+  {
+      return(FALSE)
+  }
+}
+
+# implement the Metropolis-Hastings algorithm
 metropolisHastings <- function(explanatory, response, data, iterations)
 {
-  hessianMat = hessian(explanatory, response, data, beta0, beta1);
-  sigma = -solve(hessianMat);
-  
   iterLimit = 0.0001;
-  beta = newtonRaphson(explanatory, response, data, iterLimit);
+  betaInit = newtonRaphson(explanatory, response, data, iterLimit);
+  betaCurrent = betaInit;
+  betaNext = c(0, 0);
+  betaCandidate = c(0, 0);
+  sumBeta = c(0, 0);
   
-  mvrnorm(n=10000, beta, sigma);
+  # uptate the current state of the Markov chain 
+  for (i in c(1:iterations))
+  {
+    hessianMat = hessian(explanatory, response, data, betaInit[1], betaInit[2]);
+    sigma = -solve(hessianMat);
+    betaCandidate = mvrnorm(n=1, betaInit, sigma);
+    lhCandidate = estLikeliHood(explanatory, response, data, betaCandidate[1], betaCandidate[2]);
+    lhCurrent = estLikeliHood(explanatory, response, data, betaCurrent[1], betaCurrent[2]);
+    
+    if (lhCandidate >= lhCurrent)
+    {
+      betaNext = betaCandidate;
+    }
+    else if (sampleU(lhCandidate, lhCurrent))
+    {
+      betaNext = betaCandidate;
+    }
+    else if(!sampleU(lhCandidate, lhCurrent))
+    {
+      betaNext = betaCurrent;
+    }
+    betaCurrent = betaNext;
+    sumBeta = sumBeta + betaCurrent;
+  }
+  
+  meanBeta = sumBeta/iterations;
+  return(meanBeta);
   
 }
   
@@ -171,5 +213,5 @@ setwd("~/Course/STAT534/STAT534_code/HW4");
 require(snow);
 
 #this is where the program starts
-main('534binarydata.txt',10000,10);
+main('534binarydata.txt',10000,2);
 
