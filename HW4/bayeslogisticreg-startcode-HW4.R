@@ -10,7 +10,58 @@ mleLogistic <- function(explanatory,response,data)
 }
 
 
-bayesLogistic = function(apredictor,response,data,NumberOfIterations)
+
+# this function calculate the likelyhood of 
+likeliHood <- function(explanatory, response, data, beta0, beta1)
+{
+  num = length(explanatory);
+  sumLikeHood = 0;
+  for (i in c(1:num))
+  {
+    pi_i = inv.logit(beta0 + beta1*data[i, explanatory]);
+    sumLikeHood = sumLikeHood + (data[i, response] * log(pi_i) + (1 - data[i, response])*log(1 - pi_i));
+  }
+  return(sumLikeHood);
+}
+# l = likeliHood(1, 61, data, 0, 0)
+
+# this function calculate the estimated likelyhood
+estLikeliHood  <- function(explanatory, response, data, beta0, beta1)
+{
+  estLH = 0;
+  estLH = - log(2*pi) - 0.5*(beta0^2 + beta1^2) + likeliHood(explanatory, response, data, beta0, beta1);
+  return(estLH);
+}
+
+# this function calculate the logarithm of the marginal likelihood
+laplaceLogLik <- function(explanatory, response, data)
+{
+  # num = length(explanatory);
+  marginLH = 0;
+  
+  
+  
+}
+
+newton <- function(explanatory, response, data, iterLimit)
+{
+  stopFlag = FALSE;
+  beta0_last = 0;
+  beta1_last = 0;
+  k = 0;
+  while(!stopFlag)
+  {
+    k = k + 1;
+    
+    
+  }
+  
+  
+  
+}
+
+
+bayesLogistic <- function(apredictor,response,data,NumberOfIterations)
 {
  
 }
@@ -51,9 +102,14 @@ main <- function(datafile,NumberOfIterations,clusterSize)
   #destroy the cluster
   stopCluster(cluster);  
 }
+install.packages("gtools");
+require(gtools);
+setwd("~/Course/STAT534/STAT534_code/HW4");
 
 #NOTE: YOU NEED THE PACKAGE 'SNOW' FOR PARALLEL COMPUTING
+install.packages("snow");
 require(snow);
 
 #this is where the program starts
 main('534binarydata.txt',10000,10);
+
