@@ -11,43 +11,6 @@ mleLogistic <- function(explanatory,response,data)
 
 
 
-# this function calculate the likelyhood of l
-likeliHood <- function(explanatory, response, data, beta0, beta1)
-{
-  num = length(explanatory);
-  sumLikeHood = 0;
-  for (i in c(1:num))
-  {
-    pi_i = inv.logit(beta0 + beta1*data[i, explanatory]);
-    sumLikeHood = sumLikeHood + (data[i, response] * log(pi_i) + (1 - data[i, response])*log(1 - pi_i));
-  }
-  return(sumLikeHood);
-}
-# l = likeliHood(1, 61, data, 0, 0)
-
-# this function calculate the estimated likelyhood l*
-estLikeliHood  <- function(explanatory, response, data, beta0, beta1)
-{
-  estLH = 0;
-  estLH = - log(2*pi) - 0.5*(beta0^2 + beta1^2) + likeliHood(explanatory, response, data, beta0, beta1);
-  return(estLH);
-}
-
-# this function calculate the logarithm of the marginal likelihood log(p(D))
-laplaceLogLik <- function(explanatory, response, data)
-{
-  # num = length(explanatory);
-  marginLH = 0;
-  iterLimit = 0.001;
-  beta = newtonRaphson(explanatory, response, data, iterLimit);
-  estLH = estLikeliHood(explanatory, response, data, beta[1], beta[2]);
-  hessianMat = hessian(explanatory, response, data, beta[1], beta[2]);
-  marginLH = log(2*pi) + log(estLh) - 0.5*log(det(-hessianMat));
-  
-  return(marginLH);
-  
-}
-
 # calculate the first derivative
 logitDeri <- function()
 {
@@ -57,12 +20,12 @@ logitDeri <- function()
 # calculate the Hessian matriax of l*
 hessian <- function(explanatory, response, data, beta0, beta1)
 {
-  ytemp = beta0 + data[explanatory]*beta1;
+  ytemp = beta0 + data[, explanatory]*beta1;
   logitFirstDeri = exp(ytemp)/((1+exp(ytemp))^2);
   a = 1 - sum(logitFirstDeri);
-  b = - sum(logitFirstDeri*data[explanatory]);
+  b = - sum(logitFirstDeri*data[, explanatory]);
   c = b;
-  d = - 1 - sum(logitFirstDeri*(data[explanatory]^2));
+  d = - 1 - sum(logitFirstDeri*(data[, explanatory]^2));
   
   hessianMat = matrix(c(a, c ,b ,d), ncol=2);
   return(hessianMat);
@@ -71,9 +34,9 @@ hessian <- function(explanatory, response, data, beta0, beta1)
 # calculate the delta(l*)
 deriOfLikeliHood <- function(explanatory, response, data, beta0, beta1)
 {
-  pi_i = inv.logit(beta0 + beta1*data[i, explanatory]);
-  deri0 = sum(data[response] - pi_i);
-  deri1 = sum(data[response]*data[explanatory] - pi_i*data[explanatory]);
+  pi_i = inv.logit(beta0 + beta1*data[, explanatory]);
+  deri0 = sum(data[, response] - pi_i);
+  deri1 = sum(data[, response]*data[, explanatory] - pi_i*data[, explanatory]);
   deri = c(deri0, deri1);
   return(deri);
 }
@@ -94,17 +57,69 @@ newtonRaphson <- function(explanatory, response, data, iterLimit)
     beta_new = beta_last - solve(hessianMat) %*% deriLH;
     error0 = beta_new[1] - beta_last[1];
     error1 = beta_new[2] - beta_last[2];
+    beta_last = beta_new;
     if ((error0 < iterLimit) && (error1 < iterLimit)) 
       stopFlag = TRUE;
-    
-    print(k)
-    print(' e0 =', error0)
-    print(' e1 =', error1)
+    # print(k);
+    # print(error0);
+    # print(error1);
   }
   return(beta_new);
 }
 
+# this function calculate the likelyhood of l
+likeliHood <- function(explanatory, response, data, beta0, beta1)
+{
+  num = length(explanatory);
+  sumLikeHood = 0;
+  # for (i in c(1:num))
+  # {
+  #   pi_i = inv.logit(beta0 + beta1*data[i, explanatory]);
+  #   sumLikeHood = sumLikeHood + (data[i, response] * log(pi_i) + (1 - data[i, response])*log(1 - pi_i));
+  # }
+  pi_i = inv.logit(beta0 + beta1*data[, explanatory]);
+  sumLikeHood = sum(data[, response]*log(pi_i) + (1 - data[, response])*log(1 - pi_i));
+  return(sumLikeHood);
+}
+# l = likeliHood(1, 61, data, 0, 0)
 
+# this function calculate the estimated likelyhood l*
+estLikeliHood  <- function(explanatory, response, data, beta0, beta1)
+{
+  estLH = 0;
+  estLH = - log(2*pi) - 0.5*(beta0^2 + beta1^2) + likeliHood(explanatory, response, data, beta0, beta1);
+  return(estLH);
+}
+
+# this function calculate the logarithm of the marginal likelihood log(p(D))
+laplaceLogLik <- function(explanatory, response, data)
+{
+  # num = length(explanatory);
+  marginLH = 0;
+  iterLimit = 0.0001;
+  beta = newtonRaphson(explanatory, response, data, iterLimit);
+  estLH = estLikeliHood(explanatory, response, data, beta[1], beta[2]);
+  hessianMat = hessian(explanatory, response, data, beta[1], beta[2]);
+  # print(beta);
+  # print(estLH);
+  # print(hessianMat);
+  marginLH = log(2*pi) + (estLH) - 0.5*log(det(-hessianMat));
+  
+  return(marginLH);
+}
+
+metropolisHastings <- function(explanatory, response, data, iterations)
+{
+  hessianMat = hessian(explanatory, response, data, beta0, beta1);
+  sigma = -solve(hessianMat);
+  
+  iterLimit = 0.0001;
+  beta = newtonRaphson(explanatory, response, data, iterLimit);
+  
+  mvrnorm(n=10000, beta, sigma);
+  
+}
+  
 bayesLogistic <- function(apredictor,response,data,NumberOfIterations)
 {
  
@@ -146,12 +161,13 @@ main <- function(datafile,NumberOfIterations,clusterSize)
   #destroy the cluster
   stopCluster(cluster);  
 }
-install.packages("gtools");
+#install.packages("gtools");
 require(gtools);
+require(MASS);
 setwd("~/Course/STAT534/STAT534_code/HW4");
 
 #NOTE: YOU NEED THE PACKAGE 'SNOW' FOR PARALLEL COMPUTING
-install.packages("snow");
+#install.packages("snow");
 require(snow);
 
 #this is where the program starts
