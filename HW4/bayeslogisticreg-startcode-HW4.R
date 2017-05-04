@@ -43,6 +43,8 @@ deriOfLikeliHood <- function(explanatory, response, data, beta0, beta1)
 
 # use the Newton-Raphson algorithm to perform the estimation
 # iterLimit  = 0.0001
+# use the Newton-Raphson algorithm to perform the estimation
+# iterLimit  = 0.0001
 newtonRaphson <- function(explanatory, response, data, iterLimit)
 {
   stopFlag = FALSE;
