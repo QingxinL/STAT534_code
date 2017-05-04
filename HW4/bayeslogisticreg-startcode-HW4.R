@@ -11,7 +11,7 @@ mleLogistic <- function(explanatory,response,data)
 
 
 
-# this function calculate the likelyhood of 
+# this function calculate the likelyhood of l
 likeliHood <- function(explanatory, response, data, beta0, beta1)
 {
   num = length(explanatory);
@@ -25,7 +25,7 @@ likeliHood <- function(explanatory, response, data, beta0, beta1)
 }
 # l = likeliHood(1, 61, data, 0, 0)
 
-# this function calculate the estimated likelyhood
+# this function calculate the estimated likelyhood l*
 estLikeliHood  <- function(explanatory, response, data, beta0, beta1)
 {
   estLH = 0;
@@ -33,31 +33,75 @@ estLikeliHood  <- function(explanatory, response, data, beta0, beta1)
   return(estLH);
 }
 
-# this function calculate the logarithm of the marginal likelihood
+# this function calculate the logarithm of the marginal likelihood log(p(D))
 laplaceLogLik <- function(explanatory, response, data)
 {
   # num = length(explanatory);
   marginLH = 0;
+  iterLimit = 0.001;
+  beta = newtonRaphson(explanatory, response, data, iterLimit);
+  estLH = estLikeliHood(explanatory, response, data, beta[1], beta[2]);
+  hessianMat = hessian(explanatory, response, data, beta[1], beta[2]);
+  marginLH = log(2*pi) + log(estLh) - 0.5*log(det(-hessianMat));
   
-  
+  return(marginLH);
   
 }
 
-newton <- function(explanatory, response, data, iterLimit)
+# calculate the first derivative
+logitDeri <- function()
+{
+  
+}
+
+# calculate the Hessian matriax of l*
+hessian <- function(explanatory, response, data, beta0, beta1)
+{
+  ytemp = beta0 + data[explanatory]*beta1;
+  logitFirstDeri = exp(ytemp)/((1+exp(ytemp))^2);
+  a = 1 - sum(logitFirstDeri);
+  b = - sum(logitFirstDeri*data[explanatory]);
+  c = b;
+  d = - 1 - sum(logitFirstDeri*(data[explanatory]^2));
+  
+  hessianMat = matrix(c(a, c ,b ,d), ncol=2);
+  return(hessianMat);
+}
+
+# calculate the delta(l*)
+deriOfLikeliHood <- function(explanatory, response, data, beta0, beta1)
+{
+  pi_i = inv.logit(beta0 + beta1*data[i, explanatory]);
+  deri0 = sum(data[response] - pi_i);
+  deri1 = sum(data[response]*data[explanatory] - pi_i*data[explanatory]);
+  deri = c(deri0, deri1);
+  return(deri);
+}
+
+# use the Newton-Raphson algorithm to perform the estimation
+# iterLimit  = 0.0001
+newtonRaphson <- function(explanatory, response, data, iterLimit)
 {
   stopFlag = FALSE;
-  beta0_last = 0;
-  beta1_last = 0;
+  beta_last = c(0, 0);
+  beta_new = c(0, 0);
   k = 0;
   while(!stopFlag)
   {
     k = k + 1;
+    hessianMat = hessian(explanatory, response, data, beta_last[1], beta_last[2]);
+    deriLH = deriOfLikeliHood(explanatory, response, data, beta_last[1], beta_last[2]);
+    beta_new = beta_last - solve(hessianMat) %*% deriLH;
+    error0 = beta_new[1] - beta_last[1];
+    error1 = beta_new[2] - beta_last[2];
+    if ((error0 < iterLimit) && (error1 < iterLimit)) 
+      stopFlag = TRUE;
     
-    
+    print(k)
+    print(' e0 =', error0)
+    print(' e1 =', error1)
   }
-  
-  
-  
+  return(beta_new);
 }
 
 
