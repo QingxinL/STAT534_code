@@ -166,7 +166,15 @@ metropolisHastings <- function(explanatory, response, data, iterations)
   
 bayesLogistic <- function(apredictor,response,data,NumberOfIterations)
 {
- 
+  #source('bayeslogisticreg-startcode-HW4.R');
+  print(appredictor);l
+  explanatory = apredictor;
+  beta_mean = metropolisHastings(explanatory, response, data, NumberOfIterations);
+  beta_mle = mleLogistic(explanatory,response,data);
+  logmarglik = laplaceLogLik(explanatory, response, data);
+  result = list('apredictor' = apredictor, 'logmarglik' = logmarglik, 'beta0bayes' = beta_mean[1], 'beta1bayes' = beta_mean[2],
+              'beta0mle' = beta_mle[1], 'beta1mle' = beta_mle[2]);
+  return(result);
 }
 
 #PARALLEL VERSION
@@ -188,6 +196,11 @@ main <- function(datafile,NumberOfIterations,clusterSize)
   #initialize a cluster for parallel computing
   cluster <- makeCluster(clusterSize, type = "SOCK")
   
+  library(MASS)
+  # import function to the cluster
+  clusterExport(cluster, list("mleLogistic", "hessian", "deriOfLikeliHood", "newtonRaphson", "likeliHood", 
+                              "estLikeliHood", "laplaceLogLik", "sampleU", "metropolisHastings", "bayesLogistic",
+                              "mvrnorm" ))
   #run the MC3 algorithm from several times
   results = clusterApply(cluster, 1:lastPredictor, bayesLogistic,
                          response,data,NumberOfIterations);
@@ -215,5 +228,5 @@ setwd("~/Course/STAT534/STAT534_code/HW4");
 require(snow);
 
 #this is where the program starts
-main('534binarydata.txt',10000,2);
+main('534binarydata.txt',10000,2)
 
