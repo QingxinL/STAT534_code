@@ -36,7 +36,7 @@ void copymatrix(int n,int p,double** source,double** dest)
 	
 	for(i=0;i<n;i++)
 	{
-		for(j=0;j<n;j++)
+		for(j=0;j<p;j++)
 		{
 			dest[i][j] = source[i][j];
 		}
@@ -243,7 +243,7 @@ double logdet(int p,double** m)
 	return(logdet);
 }
 
-//set the ident
+//set the 2d identity matrix
 double** set_mat_identity2D(int p)
 {
     double** idt = allocmatrix(p,p);
@@ -256,9 +256,10 @@ double** set_mat_identity2D(int p)
                 idt[i][j] = 0;
             
         }
-    return idt;
+    return (idt);
 }
 
+// calculate the plus of matrices
 double** matrixplus(int n, int p, double** m1, double** m2)
 {
     double** m = allocmatrix(n, p);
@@ -267,19 +268,20 @@ double** matrixplus(int n, int p, double** m1, double** m2)
         {
             m[i][j] = m1[i][j] + m2[i][j];
         }
-    return m;
+    return (m);
 }
 
+// select column of int* A from double **data
 double** selectData(int n, double **data, int lenA, int* A)
 {
     double** select = allocmatrix(n, lenA);
     for(int i=0; i<n; i++)
         for (int j=0; j<lenA; j++)
         {
-            select[i][j] = data[i][A[j]];
+            select[i][j] = data[i][A[j]-1];
         }
     
-    return select;
+    return (select);
 }
 
 
