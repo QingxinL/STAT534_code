@@ -7,14 +7,61 @@
 //
 
 #include <iostream>
-/*
-int main(int argc, const char * argv[]) {
-    // insert code here...
-    std::cout << "Hello, World!\n";
-    return 0;
+
+typedef struct
+{
+    size_t size1;
+    size_t size2;
+    size_t tda;
+    double * data;
+    gsl_block * block;
+    int owner;
+} gsl_matrix;
+
+double marglik(gsl_matrix* data,int lenA,int* A)
+{
+    int n = data->size1;
+    int p = data->size2;
+    
+    //creates a submatrix of matrix M
+    int* IndRow = new int[n];
+    for (int i=0; i<n; i++)
+    {
+        IndRow[i] = i;
+    }
+    int* firstColumn = new int[1];
+    firstColumn[0] = 0;
+    gsl_matrix* D1 = MakeSubmatrix(data, IndRow, n, firstColumn, 1);
+    gsl_matrix* D_A = MakeSubmatrix(data, IndRow, n, A, lenA);
+    
+    gsl_matrix* D_At = transposematrix(D_A);
+    
+    gsl_matrix* M_A = gsl_matrix_alloc(lenA, lenA);
+    matrixproduct(D_A, D_At, M_A);
+    
+    gsl_matrix* diagA = diagMatrix(lenA);
+    gsl_matrix_add(M_A, diagA);
+    printmatrix("M_A.txt",M_A);
+    
+    gsl_matrix* temp2 = gsl_matrix_alloc(1, 1);
+    matrixproduct(transposematrix(D1), D1, temp2);
+    
+    last_term = 1 + gsl_matrix_get(temp2,0,0) - ;
+    
+    log_marglik = 
+    
+    gsl_matrix_free(D1);
+    gsl_matrix_free(D_A);
+    gsl_matrix_free(D_At);
+    gsl_matrix_free(M_A);
+    gsl_matrix_free(diagA);
+    gsl_matrix_free(temp2);
+    gsl_matrix_free();
+    gsl_matrix_free();
+    
+    return ();
+    
 }
-*/
-double marglik(gsl_matrix* data,int lenA,int* A);
 
 
 #include "matrices.h"
