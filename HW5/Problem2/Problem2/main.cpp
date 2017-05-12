@@ -6,49 +6,71 @@
 //  Copyright © 2017 Yuxuan Cheng. All rights reserved.
 //
 
+/*
+ typedef struct
+ {
+ size_t size1;
+ size_t size2;
+ size_t tda;
+ double * data;
+ gsl_block * block;
+ int owner;
+ } gsl_matrix;
+*/
+
 #include <iostream>
+#include "matrices.h"
 
-typedef struct
+double marglik(gsl_matrix* data,int lenA, int* A)
 {
-    size_t size1;
-    size_t size2;
-    size_t tda;
-    double * data;
-    gsl_block * block;
-    int owner;
-} gsl_matrix;
-
-double marglik(gsl_matrix* data,int lenA,int* A)
-{
-    int n = data->size1;
-    int p = data->size2;
+    size_t n = data->size1;
+    size_t p = data->size2;
+    int i;
     
     //creates a submatrix of matrix M
     int* IndRow = new int[n];
-    for (int i=0; i<n; i++)
+    for (i=0; i<n; i++)
     {
         IndRow[i] = i;
     }
     int* firstColumn = new int[1];
     firstColumn[0] = 0;
     gsl_matrix* D1 = MakeSubmatrix(data, IndRow, n, firstColumn, 1);
+    
+    // sub 1 of the index select columns
+    for (i = 0; i<lenA; i++)
+        A[i]--;
+    
     gsl_matrix* D_A = MakeSubmatrix(data, IndRow, n, A, lenA);
     
     gsl_matrix* D_At = transposematrix(D_A);
     
     gsl_matrix* M_A = gsl_matrix_alloc(lenA, lenA);
-    matrixproduct(D_A, D_At, M_A);
+    matrixproduct(D_At, D_A, M_A);
     
     gsl_matrix* diagA = diagMatrix(lenA);
+    //printmatrix("diag.txt", diagA);
     gsl_matrix_add(M_A, diagA);
     printmatrix("M_A.txt",M_A);
     
     gsl_matrix* temp2 = gsl_matrix_alloc(1, 1);
     matrixproduct(transposematrix(D1), D1, temp2);
     
-    last_term = 1 + gsl_matrix_get(temp2,0,0) - ;
+    gsl_matrix* temp3 = gsl_matrix_alloc(1, lenA);
+    matrixproduct(transposematrix(D1), D_A, temp3);
     
-    log_marglik = 
+    gsl_matrix* temp4 = gsl_matrix_alloc(1, lenA);
+    matrixproduct(temp3, inverse(M_A), temp4);
+    
+    gsl_matrix* temp5 = gsl_matrix_alloc(1, n);
+    matrixproduct(temp4, D_At, temp5);
+    
+    gsl_matrix* temp6 = gsl_matrix_alloc(1, 1);
+    matrixproduct(temp5, D1, temp6);
+    
+    double last_term = 1 + gsl_matrix_get(temp2,0,0) - gsl_matrix_get(temp6,0,0);
+    
+    double log_marglik = lgamma((n+lenA+2)/2.0) - lgamma((lenA+2)/2.0) - 0.5 * logdet(M_A) - (n+lenA+2)/2.0 * log(last_term);
     
     gsl_matrix_free(D1);
     gsl_matrix_free(D_A);
@@ -56,10 +78,12 @@ double marglik(gsl_matrix* data,int lenA,int* A)
     gsl_matrix_free(M_A);
     gsl_matrix_free(diagA);
     gsl_matrix_free(temp2);
-    gsl_matrix_free();
-    gsl_matrix_free();
+    gsl_matrix_free(temp3);
+    gsl_matrix_free(temp4);
+    gsl_matrix_free(temp5);
+    gsl_matrix_free(temp6);
     
-    return ();
+    return (log_marglik);
     
 }
 

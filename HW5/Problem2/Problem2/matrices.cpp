@@ -142,3 +142,16 @@ double logdet(gsl_matrix* K)
 	return(logdet);
 }
 
+// create the diagonal matrix of n*n
+gsl_matrix* diagMatrix(int n)
+{
+    int i;
+    gsl_matrix* mat = gsl_matrix_alloc(n, n);
+    gsl_matrix_set_all(mat, 0.0);
+    for (i=0; i<n ;i++)
+    {
+        gsl_matrix_set(mat, i, i, 1);
+    }
+    return mat;
+}
+
