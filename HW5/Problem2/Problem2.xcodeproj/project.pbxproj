@@ -224,9 +224,12 @@
 		AA307BB71EC531BF000F43A6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				"HEADER_SEARCH_PATHS[arch=*]" = (
-					/usr/local/include/gsl,
-					/usr/local/include/,
+				"HEADER_SEARCH_PATHS[arch=*]" = /usr/local/include/;
+				"OTHER_LDFLAGS[arch=*]" = (
+					"-I/usr/local/include",
+					"-L/usr/local/lib",
+					"-lgsl",
+					"-lgslcblas",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
