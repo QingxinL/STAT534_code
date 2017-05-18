@@ -33,7 +33,7 @@ int sameregression(int lenA1,int* A1,int lenA2,int* A2)
 
   return 1;
 }
-void RetainNMaxRegression(int nMaxRegs, LPRegression regressions)
+int RetainNMaxRegression(int nMaxRegs, LPRegression regressions)
 {
   LPRegression p = regressions;
   LPRegression pnext = p->Next;
@@ -50,11 +50,10 @@ void RetainNMaxRegression(int nMaxRegs, LPRegression regressions)
   // delete the smallest marginal likelihood
   if (num>nMaxRegs)
   {
-    for (i=0; i<num-nMaxRegs;i++)
-      DeleteLastRegression(p);
+    for (int i=0; i<num-nMaxRegs;i++)
+      DeleteLastRegression(regressions);
   }
-
-
+  return num;
 }
 //this function adds a new regression with predictors A
 //to the list of regressions. Here "regressions" represents
@@ -107,13 +106,9 @@ void AddRegression(int nMaxRegs, LPRegression regressions,int lenA,int* A,double
 
   printf("inserted [%d]\n",A[0]);
 
-  RetainNMaxRegression(nMaxRegs, regressions);
-  // for (int i=0; i<nMaxRegs; i++)
-  // {
-  //   if (p->next==NULL) {break;}
-  //
-  //   DeleteLastRegression(LPRegression regressions);
-  // }
+  int numOfRegression = RetainNMaxRegression(nMaxRegs, regressions);
+
+  //printf("number of regressions = %d\n", numOfRegression);
 
   return;
 }

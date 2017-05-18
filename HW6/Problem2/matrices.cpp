@@ -1,12 +1,12 @@
 #include "matrices.h"
 
-//allocates the memory for a matrix with 
+//allocates the memory for a matrix with
 //n rows and p columns
 double ** allocmatrix(int n,int p)
 {
 	int i;
 	double** m;
-	
+
 	m = new double*[n];
 	for(i=0;i<n;i++)
 	{
@@ -20,7 +20,7 @@ double ** allocmatrix(int n,int p)
 void freematrix(int n,double** m)
 {
 	int i;
-	
+
 	for(i=0;i<n;i++)
 	{
 		delete[] m[i]; m[i] = NULL;
@@ -33,7 +33,7 @@ void freematrix(int n,double** m)
 void copymatrix(int n,int p,double** source,double** dest)
 {
 	int i,j;
-	
+
 	for(i=0;i<n;i++)
 	{
 		for(j=0;j<p;j++)
@@ -50,7 +50,7 @@ void readmatrix(char* filename,int n,int p,double* m[])
 	int i,j;
 	double s;
 	FILE* in = fopen(filename,"r");
-	
+
 	if(NULL==in)
 	{
 		printf("Cannot open input file [%s]\n",filename);
@@ -74,7 +74,7 @@ void printmatrix(char* filename,int n,int p,double** m)
 	int i,j;
 	double s;
 	FILE* out = fopen(filename,"w");
-	
+
 	if(NULL==out)
 	{
 		printf("Cannot open output file [%s]\n",filename);
@@ -97,17 +97,17 @@ void printmatrix(char* filename,int n,int p,double** m)
 double** transposematrix(int n,int p,double** m)
 {
 	int i,j;
-	
+
 	double** tm = allocmatrix(p,n);
-	
+
 	for(i=0;i<p;i++)
 	{
 		for(j=0;j<n;j++)
 		{
 			tm[i][j] = m[j][i];
 		}
-	}	
-	
+	}
+
 	return(tm);
 }
 
@@ -116,7 +116,7 @@ double** transposematrix(int n,int p,double** m)
 void dotmatrixproduct(int n,int p,double** m1,double** m2,double** m)
 {
 	int i,j;
-	
+
 	for(i=0;i<n;i++)
 	{
 		for(j=0;j<p;j++)
@@ -124,7 +124,7 @@ void dotmatrixproduct(int n,int p,double** m1,double** m2,double** m)
 			m[i][j] = m1[i][j]*m2[i][j];
 		}
 	}
-	
+
 	return;
 }
 
@@ -134,7 +134,7 @@ void matrixproduct(int n,int p,int l,double** m1,double** m2,double** m)
 {
 	int i,j,k;
 	double s;
-	
+
 	for(i=0;i<n;i++)
 	{
 		for(k=0;k<l;k++)
@@ -194,7 +194,7 @@ void inverse(int p,double** m)
         m[i][j] = m_inv[k];
         k++;
      }
-  }  
+  }
 
   free(m_copy);
   free(m_inv);
@@ -206,10 +206,17 @@ void inverse(int p,double** m)
 //computes the log of the determinant of a symmetric positive definite matrix
 double logdet(int p,double** m)
 {
-        //just take care of the 1x1 case
-        if(1==p)
+	//just take care of the 1x1 case
+  if(1==p)
 	{
 	  return(log(m[0][0]));
+	}
+
+	//just take care of the 2x2 case
+	if (2==p)
+	{
+		double logResult = log(m[0][0]*m[1][1] - m[0][1]*m[1][0]);
+		return (logResult);
 	}
 
 	int i,j;
@@ -226,7 +233,7 @@ double logdet(int p,double** m)
 	int lwork = p*p;
 	double a[p][p];
 	int info = 1;
-	
+
 	for(i=0;i<p;i++)
 	{
 		for(j=0;j<p;j++)
@@ -234,17 +241,17 @@ double logdet(int p,double** m)
 			a[i][j] = m[i][j];
 		}
 	}
-	dgeev_(&jobvl,&jobvr,&p,(double*)a,&lda,(double*)wr,(double*)wi,(double*)vl, 
+	dgeev_(&jobvl,&jobvr,&p,(double*)a,&lda,(double*)wr,(double*)wi,(double*)vl,
 		  &ldvl,(double*)vr,&ldvr,(double*)work,&lwork,&info);
 
 	if(0!=info)
 	{
 		printf("Smth wrong in the call of 'dgeev' error is [info = %d]\n",info);
 		exit(1);
-	}	   
-	
+	}
+
 	double logdet = 0;
-	for(i=0;i<p;i++) logdet+=log(wr[i]);	
+	for(i=0;i<p;i++) logdet+=log(wr[i]);
 	return(logdet);
 }
 
@@ -282,7 +289,7 @@ double marglik(int n,int p,double** data,int lenA,int* A)
   double** DA = submatrix(n,p,data,lenA,A);
 
   //get the tranposed of DA
-  double** transpDA = transposematrix(n,lenA,DA); 
+  double** transpDA = transposematrix(n,lenA,DA);
 
   //MA is a lenA x lenA matrix
   double** MA = allocmatrix(lenA,lenA);
@@ -302,7 +309,7 @@ double marglik(int n,int p,double** data,int lenA,int* A)
   {
     s += pow(D1[i][0],2);
   }
- 
+
   //calculate t(DA) %*% D1
   //this is a lenA x 1 matrix
   double** transpDAD1 = allocmatrix(lenA,1);
