@@ -31,13 +31,13 @@ int main()
 
   int A[p-1]; //indices of the variables present in the regression
   int lenA = -1; //number of indices
-  
+
   //add the regressions with one predictor
   lenA = 1;
   for(i=1;i<p;i++)
   {
     A[0] = i+1;
-    AddRegression(regressions,
+    AddRegression(10， regressions,
                   lenA, A,
                   marglik(n,p,data,lenA,(int*)A));
   }

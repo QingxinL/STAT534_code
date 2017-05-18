@@ -33,13 +33,35 @@ int sameregression(int lenA1,int* A1,int lenA2,int* A2)
 
   return 1;
 }
+void RetainNMaxRegression(int nMaxRegs, LPRegression regressions)
+{
+  LPRegression p = regressions;
+  LPRegression pnext = p->Next;
 
+  //count the number of elements
+  int num = 1;
+  while(NULL!=pnext)
+  {
+    num++;
+    p = pnext;
+    pnext = p->Next;
+
+  }
+  // delete the smallest marginal likelihood
+  if (num>nMaxRegs)
+  {
+    for (i=0; i<num-nMaxRegs;i++)
+      DeleteLastRegression(p);
+  }
+
+
+}
 //this function adds a new regression with predictors A
 //to the list of regressions. Here "regressions" represents
 //the head of the list, "lenA" is the number of predictors
 //and "logmarglikA" is the marginal likelihood of the regression
 //with predictors A
-void AddRegression(LPRegression regressions,int lenA,int* A,double logmarglikA)
+void AddRegression(int nMaxRegs, LPRegression regressions,int lenA,int* A,double logmarglikA)
 {
   int i;
   LPRegression p = regressions;
@@ -72,7 +94,7 @@ void AddRegression(LPRegression regressions,int lenA,int* A,double logmarglikA)
   newp->lenA = lenA;
   newp->logmarglikA = logmarglikA;
   newp->A = new int[lenA];
-  
+
   //copy the predictors
   for(i=0;i<lenA;i++)
   {
@@ -84,6 +106,14 @@ void AddRegression(LPRegression regressions,int lenA,int* A,double logmarglikA)
   newp->Next = pnext;
 
   printf("inserted [%d]\n",A[0]);
+
+  RetainNMaxRegression(nMaxRegs, regressions);
+  // for (int i=0; i<nMaxRegs; i++)
+  // {
+  //   if (p->next==NULL) {break;}
+  //
+  //   DeleteLastRegression(LPRegression regressions);
+  // }
 
   return;
 }
@@ -138,7 +168,7 @@ void DeleteLastRegression(LPRegression regressions)
     pprev = p;
     p = p->Next;
   }
-  
+
   //now "p" should give the last element
   //delete it
   delete[] p->A;
@@ -159,7 +189,7 @@ void SaveRegressions(char* filename,LPRegression regressions)
   int i;
   //open the output file
   FILE* out = fopen(filename,"w");
-	
+
   if(NULL==out)
   {
     printf("Cannot open output file [%s]\n",filename);
