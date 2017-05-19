@@ -33,8 +33,6 @@ int sameregression(int lenA1,int* A1,int lenA2,int* A2)
 
   return 1;
 }
-
-// retain the nMaxRegs regressions
 int RetainNMaxRegression(int nMaxRegs, LPRegression regressions)
 {
   LPRegression p = regressions;
