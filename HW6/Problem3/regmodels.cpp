@@ -39,7 +39,7 @@ int RetainNMaxRegression(int nMaxRegs, LPRegression regressions)
   LPRegression pnext = p->Next;
 
   //count the number of elements
-  int num = 1;
+  int num = 0;
   while(NULL!=pnext)
   {
     num++;
@@ -50,8 +50,11 @@ int RetainNMaxRegression(int nMaxRegs, LPRegression regressions)
   // delete the smallest marginal likelihood
   if (num>nMaxRegs)
   {
+    //printf ("num= %d nMaxRegs = %d\n",num, nMaxRegs);
     for (int i=0; i<num-nMaxRegs;i++)
+    {
       DeleteLastRegression(regressions);
+    }
   }
   return num;
 }

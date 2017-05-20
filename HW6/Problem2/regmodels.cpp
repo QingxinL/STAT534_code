@@ -41,7 +41,7 @@ int RetainNMaxRegression(int nMaxRegs, LPRegression regressions)
   LPRegression pnext = p->Next;
 
   //count the number of elements
-  int num = 1;
+  int num = 0;
   while(NULL!=pnext)
   {
     num++;

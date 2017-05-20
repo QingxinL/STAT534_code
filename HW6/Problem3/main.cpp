@@ -38,7 +38,8 @@ int main()
   int maxA1 = 2;
   for(i=1;i<p;i++)
   {
-    /*A[0] = i+1;
+    A[0] = i+1;
+    /*
     maxMarglik = -10000000;
     maxA1 = i+1;
     for (j=i+1; j<p; j++)

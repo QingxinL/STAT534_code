@@ -139,6 +139,20 @@ double det(gsl_matrix* K)
     return detResult;
 }
 
+int readLines(char datafilename[])
+{
+    FILE *pf = fopen(datafilename, "r"); //
+    char buf[1000];
+    int lineCnt = 0;
+    if (!pf) // if success
+        return -1;
+    while (fgets(buf, 1000, pf)) // fgets
+        lineCnt++; //
+    fclose(pf);
+    //printf("file line count = %d\n", lineCnt);
+    return lineCnt;
+}
+
 #include "matrices.h"
 int main()
 {
@@ -148,8 +162,11 @@ int main()
 //    int A[] = {2,5,10};//indices of the variables present in the regression
 //    int lenA = 3; //number of indices
     char datafilename[] = "M_A.txt";
+    // get the size of the matriax
+    int lines = readLines(datafilename);
+    //printf("lenes = %d",lines);
     //allocate the data matrix
-    gsl_matrix* data = gsl_matrix_alloc(3,3);
+    gsl_matrix* data = gsl_matrix_alloc(lines, lines);
     //read the data
     FILE* datafile = fopen(datafilename,"r");
     if(NULL==datafile)
