@@ -6,17 +6,6 @@
 //  Copyright © 2017 Yuxuan Cheng. All rights reserved.
 //
 
-/*
- typedef struct
- {
- size_t size1;
- size_t size2;
- size_t tda;
- double * data;
- gsl_block * block;
- int owner;
- } gsl_matrix;
-*/
 
 #include <iostream>
 #include "matrices.h"
@@ -51,7 +40,7 @@ double marglik(gsl_matrix* data,int lenA, int* A)
     gsl_matrix* diagA = diagMatrix(lenA);
     //printmatrix("diag.txt", diagA);
     gsl_matrix_add(M_A, diagA);
-    printmatrix("M_A.txt",M_A);
+    //printmatrix("M_A.txt",M_A);
     
     gsl_matrix* temp2 = gsl_matrix_alloc(1, 1);
     matrixproduct(transposematrix(D1), D1, temp2);
@@ -139,6 +128,7 @@ double det(gsl_matrix* K)
     return detResult;
 }
 
+// return the size of the matrix
 int readLines(char datafilename[])
 {
     FILE *pf = fopen(datafilename, "r"); //
@@ -156,17 +146,14 @@ int readLines(char datafilename[])
 #include "matrices.h"
 int main()
 {
-//    int n = 158; //sample size
-//    int p = 51; //number of variables
-//    int i;
-//    int A[] = {2,5,10};//indices of the variables present in the regression
-//    int lenA = 3; //number of indices
-    char datafilename[] = "M_A.txt";
+
+    char datafilename[] = "mybandedmatrix.txt";
     // get the size of the matriax
     int lines = readLines(datafilename);
-    //printf("lenes = %d",lines);
-    //allocate the data matrix
+    
+    // alloc the memory
     gsl_matrix* data = gsl_matrix_alloc(lines, lines);
+    
     //read the data
     FILE* datafile = fopen(datafilename,"r");
     if(NULL==datafile)
@@ -178,21 +165,13 @@ int main()
         fprintf(stderr,"File [%s] does not have the required format.\n",datafilename);
         return(0); }
     fclose(datafile);
-//    printf("Marginal likelihood of regression [1|%d",A[0]);
-//    for(i=1;i<lenA;i++)
-//    {
-//        printf(",%d",A[i]);
-//    }
+
+    // calculate the deterimant of matriax
     double detMat = det(data);
     printf("the det of matrix is = %.5lf\n", detMat);
+    
     //free memory
     gsl_matrix_free(data);
     return(1);
 }
 
-//Your task is to write the function
-
-//If everything goes well, your program should run like this:
-//stu5:~/534> ./matrices
-//Marginal likelihood of regression [1|2,5,10] = -59.97893
-//Points will be deducted if your version of the function uses numerical routines not defined in the library “GSL”. It is okay to use usual mathematical functions defined in “math.h”, e.g. “log” or “lgamma”.

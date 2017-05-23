@@ -33,6 +33,8 @@ int sameregression(int lenA1,int* A1,int lenA2,int* A2)
 
   return 1;
 }
+
+// Retain the maxinum nMaxRegs regressions in the model
 int RetainNMaxRegression(int nMaxRegs, LPRegression regressions)
 {
   LPRegression p = regressions;
@@ -58,6 +60,7 @@ int RetainNMaxRegression(int nMaxRegs, LPRegression regressions)
   }
   return num;
 }
+
 //this function adds a new regression with predictors A
 //to the list of regressions. Here "regressions" represents
 //the head of the list, "lenA" is the number of predictors

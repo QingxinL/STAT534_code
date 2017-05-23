@@ -32,40 +32,21 @@ int main()
   int A[p-1]; //indices of the variables present in the regression
   int lenA = -1; //number of indices
 
-  //add the regressions with one predictor
+  //add the regressions with two predictor
   lenA = 2;
   double maxMarglik, tempMarglik;
   int maxA1 = 2;
   for(i=1;i<p;i++)
   {
     A[0] = i+1;
-    /*
-    maxMarglik = -10000000;
-    maxA1 = i+1;
+
+    //add the second predictor
     for (j=i+1; j<p; j++)
     {
       A[1] = j+1;
-      tempMarglik = marglik(n,p,data,lenA,(int*)A);
-      if (tempMarglik>maxMarglik)
-      {
-        maxMarglik = tempMarglik;
-        maxA1 = j;
-      }
-    }
-    A[1] = maxA1;
-    AddRegression(10, regressions,
-                  lenA, A,
-                  maxMarglik);
-    */
-    for (j=i+1; j<p; j++)
-    {
-      A[1] = j+1;
-      //tempMarglik = marglik(n,p,data,lenA,(int*)A);
       AddRegression(10, regressions, lenA, A, marglik(n,p,data,lenA,(int*)A));
 
     }
-
-
   }
 
   //save the list in a file

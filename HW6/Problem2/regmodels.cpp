@@ -57,6 +57,7 @@ int RetainNMaxRegression(int nMaxRegs, LPRegression regressions)
   }
   return num;
 }
+
 //this function adds a new regression with predictors A
 //to the list of regressions. Here "regressions" represents
 //the head of the list, "lenA" is the number of predictors
