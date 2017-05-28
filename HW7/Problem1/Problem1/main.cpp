@@ -1,6 +1,6 @@
 //
 //  main.cpp
-//  Problem2
+//  Problem1
 //
 //  Created by Yuxuan Cheng on 5/11/17.
 //  Copyright © 2017 Yuxuan Cheng. All rights reserved.
@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include "matrices.h"
+//gsl_rng *r = gsl_rng_alloc(gsl_rng_taus2);
 
 double marglik(gsl_matrix* data,int lenA, int* A)
 {
@@ -201,7 +202,7 @@ gsl_matrix* choleskyComp(gsl_matrix* m)
 }
 //gsl_linalg_cholesky_decomp1 (gsl_matrix * A);
 
-// get the gaussian random matriax
+// get the gaussian random matriax, *r is the random seed
 gsl_matrix* gaussianRanM(int p, gsl_rng *r)
 {
     gsl_matrix* GaussMat = gsl_matrix_alloc(p, 1);
@@ -242,29 +243,38 @@ gsl_matrix* drawTheMat(gsl_matrix* cho, gsl_matrix* Z)
 gsl_matrix* multipleSample(gsl_matrix* choleskyMat, int sampleNum, int p)
 {
     gsl_matrix* sampleMat = gsl_matrix_alloc(p, sampleNum);
-    gsl_vector* vec = gsl_vector_alloc(p);
     
+    //Initialize the GSL generator
     gsl_rng *r = gsl_rng_alloc(gsl_rng_taus2);
+    
+    // Get the 10000 samples
     for (int j=0; j<sampleNum; j++)
     {
-        gsl_rng_set(r, static_cast<unsigned long int>(time(NULL)));
+       // gsl_rng_set(r, static_cast<unsigned long int>(time(NULL)));
       //  gsl_rng_set(r, time(NULL));
+        
         gsl_matrix* randGaussMat = gaussianRanM(p, r);
+        //randGaussMat = gaussianRanM(p, r);
         //printmatrix("randGauss.txt", randGaussMat);
         
         //printf("cho size1=%zu size2=%zu", choleskyMat->size1, choleskyMat->size2);
         //printf("cho size1=%zu size2=%zu", randGaussMat->size1, randGaussMat->size2);
         
-        // Draw the Mat
+        // Draw the Matriax
         gsl_matrix* drawMat = drawTheMat(choleskyMat, randGaussMat);
-        
+        //drawMat = drawTheMat(choleskyMat, randGaussMat);
+
+        gsl_vector* vec = gsl_vector_alloc(p);
         //sampleMat = drawMat;
         gsl_matrix_get_col (vec, drawMat, 0);
         gsl_matrix_set_col(sampleMat, j, vec);
         
+        gsl_vector_free(vec);
         gsl_matrix_free(randGaussMat);
         gsl_matrix_free(drawMat);
     }
+    //gsl_matrix_free(randGaussMat);
+    //gsl_matrix_free(drawMat);
     gsl_rng_free (r);
     printmatrix("10000SampleMat.txt", sampleMat);
     // transpose the sampleMat and then get the co variance matrix of sampleMat
@@ -273,10 +283,13 @@ gsl_matrix* multipleSample(gsl_matrix* choleskyMat, int sampleNum, int p)
     
     gsl_matrix_free(sampleMat);
     gsl_matrix_free(sampleMatT);
+
     return (covarMat);
 }
 //
 #include "matrices.h"
+
+
 int main()
 {
 
@@ -320,12 +333,13 @@ int main()
     gsl_matrix* choleskyMat = choleskyComp(coVarMat);
     printmatrix("choleskyMat.txt", choleskyMat);
     
+    /*
     // Random Gaussian vector
-    gsl_rng *r = gsl_rng_alloc(gsl_rng_taus2);
+    gsl_rng *r0 = gsl_rng_alloc(gsl_rng_taus2);
     // Initialize the GSL generator with time:
-    gsl_rng_set(r, time(NULL)); // Seed with time
-    gsl_matrix* randGaussMat = gaussianRanM(p, r);
-    gsl_rng_free (r);
+    gsl_rng_set(r0, time(NULL)); // Seed with time
+    gsl_matrix* randGaussMat = gaussianRanM(p, r0);
+    gsl_rng_free (r0);
     printmatrix("randGauss.txt", randGaussMat);
     
     //printf("cho size1=%zu size2=%zu", choleskyMat->size1, choleskyMat->size2);
@@ -334,17 +348,17 @@ int main()
     // Draw the Mat
     gsl_matrix* drawMat = drawTheMat(choleskyMat, randGaussMat);
     printmatrix("drawMat.txt", drawMat);
-    
+    */
     // step 3
     gsl_matrix* mulSampleMat = multipleSample(choleskyMat, 10000, p);
     printmatrix("mulSampleMat.txt", mulSampleMat);
     
     //free memory
     gsl_matrix_free(mulSampleMat);
-    gsl_matrix_free(drawMat);
+ //   gsl_matrix_free(drawMat);
     gsl_matrix_free(coVarMat);
     gsl_matrix_free(choleskyMat);
-    gsl_matrix_free(randGaussMat);
+ //   gsl_matrix_free(randGaussMat);
    
     gsl_matrix_free(data);
     
