@@ -1,0 +1,217 @@
+//////////////////////////
+//PROBLEM 1 - HOMEWORK 7//
+//////////////////////////
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_statistics.h>
+#include <gsl/gsl_randist.h>
+#include <gsl/gsl_cdf.h>
+#include <gsl/gsl_blas.h>
+#include <gsl/gsl_permutation.h>
+#include <gsl/gsl_linalg.h>
+#include <gsl/gsl_sort_double.h>
+#include <gsl/gsl_sort_vector.h>
+#include <gsl/gsl_errno.h>
+
+#include "vectors.h"
+
+//////////////////////
+//CALCULATES LOG(N!)//
+//////////////////////
+double logfact(double n)
+{
+	return(lgamma(n+1));
+}
+
+///////////////////////////////////////////////////
+//CALCULATES THE LOG OF THE BINOMIAL COEFFICIENTS//
+///////////////////////////////////////////////////
+double logchoose(double n,double k)
+{
+	return(logfact(n)-logfact(k)-logfact(n-k));
+}
+
+////////////////////////////////////////////////
+//BINARY SEARCH TO DETERMINE THE INDEX SAMPLED//
+////////////////////////////////////////////////
+int WeightedSampling(int maxk,double* weights,gsl_rng* mystream)
+{
+	double s;
+	int i;
+	int q1 = 0;
+	int q2 = maxk;
+	
+	s = gsl_rng_uniform_pos(mystream);
+	while(q1+1!=q2)
+	{
+		int q = (q1+q2)/2;
+		if(weights[q]<s)
+		{
+			q1 = q;
+		}
+		else
+		{
+			q2 = q;
+		}
+	}
+	return(q1);  
+}
+
+///////////////////////////////////////////////
+//CALCULATE THE CUMULATIVE PROBABILITIES USED//
+//IN DIRECT SAMPLING                         //
+///////////////////////////////////////////////
+double* NormalizeWeights(double* wOriginal,int nmax)
+{
+        int i;
+	double* w = new double[nmax];
+	double* cumw = new double[nmax+1];
+	
+	memcpy(w,wOriginal,nmax*sizeof(double));
+
+	double maxw = w[0];
+	for(i = 1; i < nmax; i++)
+	{ 
+		if(maxw < w[i])
+		{ 
+			maxw = w[i];
+		} 
+	}
+	
+	for(i = 0; i < nmax; i++)
+	{ 
+		w[i] -= maxw;
+	}
+	
+	for(i = 0; i < nmax; i++)
+	{
+		w[i] = exp(w[i]);
+	}
+	
+	cumw[0] = 0;
+	for(i = 1; i <= nmax; i++)
+	{
+		cumw[i] = cumw[i-1]+w[i-1];
+	}
+	for(i = 1; i <= nmax; i++)
+	{
+		cumw[i] /= cumw[nmax];
+	}
+	delete[] w; w = NULL;
+	return cumw;
+}
+
+////////////////////////////////////////////////////////////////////
+//The program should be called by specifying the number of batches//
+//and the number of iterations per batch in the command line.     //
+//As such, argc should be 4.                                      //
+//For example, to complete Problem 1, you make the following call://
+// ./randbin 10 25 1000                                           //
+//in order to simulate from the discrete distribution associated  //
+//with the binomial coefficients for n = 10 in 25 batches of      //
+//1000 samples each.                                              //
+////////////////////////////////////////////////////////////////////
+int main(int argc,char** argv)
+{
+        int i,j,k;
+        double s;
+
+	if(4!=argc)
+	{
+	  fprintf(stderr,"USAGE: ./randbin <n> <Number of batches> <Number of samples per batch>\n");
+	  return(0);
+	}
+
+	int n = atoi(argv[1]);
+	int NumberOfBatches = atoi(argv[2]);
+	int NumberOfIterations = atoi(argv[3]);
+
+	fprintf(stderr,
+		"You asked for n=%d, %d batches and %d iterations per batch.\n",
+		n,NumberOfBatches,NumberOfIterations);
+
+	gsl_matrix* mysamples = gsl_matrix_alloc(n+1,NumberOfBatches);
+	
+	
+        //true vector of probabilities
+	double* probs = allocvector(n+1);		
+
+	//calculate the log of binomial probabilities
+	for(i=0;i<=n;i++)
+	{
+          probs[i] = logchoose(n,i);
+	}
+	//calculate the cumulative probabilities
+	double* cumulativeProbs = NormalizeWeights(probs,n+1);
+        for(i=0;i<=n;i++)
+	{
+          probs[i] = exp(probs[i]-n*log(2));
+        }
+
+        //print out the probabilities
+        printf("The true probabilities are:\n");
+        for(i=0;i<=n;i++)
+	{
+	  printf("P[X = %d] = %.5lf\n",
+		 i,probs[i]);
+	}
+
+	printf("\nThe true cumulative probabilities are:\n");
+	for(i=0;i<=n+1;i++)
+	{
+	  printf("P[X < %d] = %.5lf\n",
+		 i,cumulativeProbs[i]);
+	}
+
+	//initialise the GSL RNG
+        const gsl_rng_type* T;
+        gsl_rng* r;
+        gsl_rng_env_setup();
+        T = gsl_rng_default;
+        r = gsl_rng_alloc(T);
+
+
+	//perform the sampling
+	for(i=0;i<NumberOfBatches;i++)
+	{
+	  for(j=0;j<NumberOfIterations;j++)
+	  {
+	    k = WeightedSampling(n+1,cumulativeProbs,r);
+	    gsl_matrix_set(mysamples,
+			   k,
+			   i,
+			   1+gsl_matrix_get(mysamples,k,i));
+	  }
+	}
+
+	//divide all the elements of "mysamples"
+        //by the number of samples per batch
+	gsl_matrix_scale(mysamples,1.0/((double)NumberOfIterations));
+
+	//now calculate the estimates of each probability pi
+	printf("\n\n");
+	for(i=0;i<=n;i++)
+	{
+	  //create a vector view for each row of "mysamples"
+	  gsl_vector_view myrow = gsl_matrix_row(mysamples,i);
+	  printf("Estimate of P[X = %d] = %.5lf with s.d. %.5lf\n",
+		 i,
+		 gsl_stats_mean(myrow.vector.data,myrow.vector.stride,NumberOfBatches), 
+		 gsl_stats_sd(myrow.vector.data,myrow.vector.stride,NumberOfBatches));
+	}
+
+	//free the memory
+	gsl_rng_free(r);
+	gsl_matrix_free(mysamples);
+	freevector(probs);
+	freevector(cumulativeProbs);
+	return(1);
+}
