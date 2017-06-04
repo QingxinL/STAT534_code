@@ -55,6 +55,20 @@ int main()
     //print the tree in Graphviz format
     printTree(mytree,OutputFile);
     
+    //
+    
+    int count = 0;
+    double* vectorIncreasingNew = allocvector(n);
+    for(i=0;i<n;i++)
+    {
+        ReduceTreeWalk(mytree, mytree,
+                       vectorIncreasingNew,
+                       count);
+    }
+    
+    printvector(vectorIncreasingNew,n);
+    printf("\n\n");
+    
     //delete the tree
     DeleteTree(mytree);
     

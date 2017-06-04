@@ -30,4 +30,7 @@ void treeInsert(LPNode& Root,double key);
 void InorderTreeWalk(LPNode Root,double* sortedvector,int& nmax);
 void DeleteTree(LPNode Root);
 void printTree(LPNode Root,char* filename);
+void ReduceTreeWalk(LPNode &Root, LPNode &UpperNode,
+                    double* sortedvector,
+                    int& nmax);
 #endif

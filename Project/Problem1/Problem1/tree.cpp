@@ -69,6 +69,82 @@ void InorderTreeWalk(LPNode Root,
    return;  
 }
 
+//this function traverses the binary tree in inorder
+//and harvests the keys in a vector "sortedvector"
+//the keys will appear in their increasing order
+//"nmax" gives the number of keys harvested so far
+void ReduceTreeWalk(LPNode& Root, LPNode& UpperNode,
+                     double* sortedvector,
+                     int& nmax)
+{
+    char OutputFile[] = "mybinarytree.dot";
+    if(NULL!=Root)
+    {
+        
+        if (Root->Left!=NULL)
+        {
+            // find the minuium of the tree
+            ReduceTreeWalk(Root->Left, Root,
+                           sortedvector,
+                           nmax);
+        }
+        else
+        {
+            // record the number
+            printf("num = %d\n", nmax);
+            sortedvector[nmax] = Root->key;
+            nmax++;
+ 
+            //delete the node with smallest key
+            if (Root->Right==NULL)
+            {
+                Root = NULL;
+                delete Root;
+            }
+                //DeleteTree(Root);
+            else if (UpperNode==Root)   // the top layer
+            {
+                Root = Root->Right;
+                //delete Root;
+            }
+            else
+            {
+                UpperNode->Left = Root->Right;
+                Root = NULL;
+                delete Root;
+            }
+
+            //print tree
+            //printTree(Root, OutputFile);
+            
+        }
+
+
+        //char str1[10];
+        //sprintf(str1, "%2d", nmax);
+        //OutputFile = strcat(OutputFile,str1);
+        
+        //and the right subtree
+        //InorderTreeWalk(Root->Right,
+        //                sortedvector,
+        //                nmax);
+        
+        
+        
+        //first traverse the left subtree
+//        ReduceTreeWalk(Root->Right, Root,
+//                       sortedvector,
+//                       nmax);
+        
+    }
+    return;  
+}
+
+
+
+
+
+
 //deletes the entire tree
 void DeleteTree(LPNode Root)
 {
