@@ -22,12 +22,14 @@
 static int myrank;
 
 // Global variables
-int nobservations = 40;
-int nvariables = 1000;
-double* Y = NULL;
-double** X = NULL;
+//int nobservations = 40;
+int nvariables = 10;
+int numberOfGen = 25000;
 
-double ssy = 0.0;	// used in R2 calculation
+//double* Y = NULL;
+//double** X = NULL;
+
+//double ssy = 0.0;	// used in R2 calculation
 
 // Function Declarations
 void NormStand();
@@ -35,12 +37,16 @@ void master();
 void slave(int slavename);
 double GetR2(int v);
 
+double getPi(int n, int i);
+int randInt(int a, int b);
+double rand01();
+double MCMC(int n, int i, int iter);
 
 int main(int argc, char* argv[])
 {
-   int i,j;
-   FILE *yin, *xin;
-   double tmp;
+//   int i,j;
+//   FILE *yin, *xin;
+//   double tmp;
 
    ///////////////////////////
    // START THE MPI SESSION //
@@ -52,6 +58,7 @@ int main(int argc, char* argv[])
    /////////////////////////////////////
    MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
+    /*
    // Read in the data
    xin = fopen("X.txt", "r");
    yin = fopen("Y.txt", "r");
@@ -86,7 +93,7 @@ int main(int argc, char* argv[])
    // Compute the ssy value
    // Used to calculate R2
    for(i=0; i<nobservations; i++) ssy += Y[i]*Y[i];
-
+*/
    // Branch off to master or slave function
    // Master has ID == 0, the slaves are then in order 1,2,3,...
    
@@ -99,14 +106,16 @@ int main(int argc, char* argv[])
       slave(myrank);
    }
 
+    
    // clean memory
+    /*
    for(i=0; i<nobservations; i++)
    {
       delete[] X[i]; X[i] = NULL;
    }
    delete[] Y; Y = NULL;
    delete[] X; X = NULL;
-
+*/
    // Finalize the MPI session
    MPI_Finalize();
 
@@ -119,8 +128,8 @@ void master()
    int rank;		// another looping variable
    int ntasks;		// the total number of slaves
    int jobsRunning;	// how many slaves we have working
-   int work[1];		// information to send to the slaves
-   double workresults[2]; // info received from the slaves
+   int work[2];		// information to send to the slaves  work[0] =i; work[1] = 25000;
+   double workresults[2]; // info received from the slaves  workresults[0]=i; workresults[1] = p_e;
    FILE* fout;		// the output file
    MPI_Status status;	// MPI information
 
@@ -134,7 +143,9 @@ void master()
 
    // Now loop through the variables and compute the R2 values in
    // parallel
-   jobsRunning = 1;
+    jobsRunning = 1;
+    work[1] = numberOfGen;
+
 
    for(var=0; var<nvariables; var++)
    {
@@ -145,7 +156,7 @@ void master()
       {
          // Send out a work request
          MPI_Send(&work, 	// the vector with the variable
-		  1, 		// the size of the vector
+		  2, 		// the size of the vector
 		  MPI_INT,	// the type of the vector
                   jobsRunning,	// the ID of the slave to use
                   GETR2,	// tells the slave what to do
@@ -181,7 +192,7 @@ void master()
          // Send out a new work order to the processors that just
          // returned
          MPI_Send(&work,
-                  1,
+                  2,
                   MPI_INT,
                   status.MPI_SOURCE, // the slave that just returned
                   GETR2,
@@ -238,7 +249,7 @@ void master()
 
 void slave(int slavename)
 {
-   int work[1];			// the inputs from the master
+   int work[2];			// the inputs from the master
    double workresults[2];	// the outputs for the master
    MPI_Status status;		// for MPI communication
 
@@ -248,7 +259,7 @@ void slave(int slavename)
    {
       printf("Slave %d is waiting\n",slavename);
       MPI_Recv(&work,		// the inputs from the master
-	       1,		// the size of the inputs
+	       2,		// the size of the inputs
 	       MPI_INT,		// the type of the inputs
                0,		// from the MASTER node (rank=0)
                MPI_ANY_TAG,	// any type of order is fine
@@ -266,7 +277,7 @@ void slave(int slavename)
            printf("Slave %d has received work request [%d]\n",
                   slavename,work[0]);
           
-	    workresults[1] = GetR2(work[0]);
+              workresults[1] = MCMC(nvariables, work[0], work[1]);
 
             // tell the master what variable you're returning
 
@@ -350,10 +361,11 @@ double MCMC(int n, int i, int iter)
 
     }
     
-    double p_est = sumI/iter;
+    double p_est = double(sumI)/iter;
     return (p_est);
 }
 
+/*
 // Data must have zero mean and unit variance
 // This is only for 1 variable regressions without an intercept
 double GetR2(int v)
@@ -430,4 +442,4 @@ void NormStand()
 
    return;
 }
-
+*/
