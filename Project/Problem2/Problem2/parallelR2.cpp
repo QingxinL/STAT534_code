@@ -307,6 +307,52 @@ double getPi(int n, int i)
     return (Pi);
 }
 
+// return the random int belong [a, b]
+int randInt(int a, int b)
+{
+    int out;
+    out = (rand() % (b-a+1))+ a;
+    return out;
+}
+
+// return the number [0,1]
+double rand01()
+{
+    double out = rand()/double(RAND_MAX);
+    return (out);
+}
+
+//Using the Metropolis-Hastings algorithm to procduce
+double MCMC(int n, int i, int iter)
+{
+    int sumI = 0;
+    double p_is, p_it;
+    int i_t;
+    i_t = randInt(0, n);
+    int i_t1 = 0;
+    int i_s = 0;
+    for (int j=0; j<iter; j++)
+    {
+        i_s = randInt(0, n);
+        p_is = getPi(n, i_s);   // get the P_i_*
+        p_it = getPi(n, i_t);   // get the P_i_t
+        
+        if (p_is>p_it)
+            i_t1 = i_s;
+        else if (rand01() < (p_is/p_it))
+            i_t1 = i_s;
+        else
+            i_t1 = i_t;
+        
+        i_t = i_t1;
+        
+        if (i_t==i) sumI++;
+
+    }
+    
+    double p_est = sumI/iter;
+    return (p_est);
+}
 
 // Data must have zero mean and unit variance
 // This is only for 1 variable regressions without an intercept
@@ -324,6 +370,7 @@ double GetR2(int v)
 
    return(tmp / ssy);
 }
+
 
 
 void NormStand()
