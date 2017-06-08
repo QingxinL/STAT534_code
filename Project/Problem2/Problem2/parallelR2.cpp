@@ -47,6 +47,7 @@ int main(int argc, char* argv[])
 //   int i,j;
 //   FILE *yin, *xin;
 //   double tmp;
+    srand(unsigned(time(NULL)));
 
    ///////////////////////////
    // START THE MPI SESSION //
@@ -314,7 +315,7 @@ void slave(int slavename)
 double getPi(int n, int i)
 {
     double Pi;
-    Pi = (tgamma(n+1)/tgamma(i+1)*tgamma(n-i+1));
+    Pi = (tgamma(n+1)/(tgamma(i+1)*tgamma(n-i+1)));
     return (Pi);
 }
 
@@ -342,13 +343,16 @@ double MCMC(int n, int i, int iter)
     i_t = randInt(0, n);
     int i_t1 = 0;
     int i_s = 0;
+    
+    if (i_t==i) sumI++;  // for I_t0
+    
     for (int j=0; j<iter; j++)
     {
         i_s = randInt(0, n);
         p_is = getPi(n, i_s);   // get the P_i_*
         p_it = getPi(n, i_t);   // get the P_i_t
         
-        if (p_is>p_it)
+        if (p_is>=p_it)
             i_t1 = i_s;
         else if (rand01() < (p_is/p_it))
             i_t1 = i_s;
