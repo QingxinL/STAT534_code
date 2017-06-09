@@ -1,9 +1,22 @@
 digraph G {
+0.000 -> -5.000 [label = "LEFT"];
+1.000 -> 0.000 [label = "LEFT"];
+1.000 -> 25.000 [label = "RIGHT"];
+12.000 -> 12.000 [label = "RIGHT"];
+12.000 -> 21.000 [label = "RIGHT"];
 25.000 -> 12.000 [label = "LEFT"];
-25.000 -> 57.000 [label = "RIGHT"];
-37.000 -> 33.000 [label = "LEFT"];
+25.000 -> 33.000 [label = "RIGHT"];
+35.000 -> 1.000 [label = "LEFT"];
+35.000 -> 57.000 [label = "RIGHT"];
+37.000 -> 44.000 [label = "RIGHT"];
 48.000 -> 37.000 [label = "LEFT"];
 57.000 -> 48.000 [label = "LEFT"];
 57.000 -> 92.000 [label = "RIGHT"];
-92.000 -> 86.000 [label = "LEFT"];
+72.000 -> 66.000 [label = "LEFT"];
+72.000 -> 86.000 [label = "RIGHT"];
+92.000 -> 72.000 [label = "LEFT"];
+92.000 -> 123.000 [label = "RIGHT"];
+124.000 -> 35.000 [label = "LEFT"];
+124.000 -> 562.000 [label = "RIGHT"];
+562.000 -> 888.000 [label = "RIGHT"];
 }

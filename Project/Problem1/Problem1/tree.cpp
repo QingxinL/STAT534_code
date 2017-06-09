@@ -70,78 +70,57 @@ void InorderTreeWalk(LPNode Root,
 }
 
 //this function traverses the binary tree in inorder
-//and harvests the keys in a vector "sortedvector"
+//and harvests the smallest key in a vector "sortedvector"
+//the node of the smallest key will be removed
 //the keys will appear in their increasing order
-//"nmax" gives the number of keys harvested so far
+//"nmax" gives the number of keys harvested so far.
+
 void ReduceTreeWalk(LPNode& Root, LPNode& UpperNode,
                      double* sortedvector,
                      int& nmax)
 {
-    char OutputFile[] = "mybinarytree.dot";
+    //char OutputFile[] = "mybinarytree.dot";
     if(NULL!=Root)
     {
-        
+        // if still have the left subtree
         if (Root->Left!=NULL)
         {
-            // find the minuium of the tree
+            // find the smellest key of the tree
             ReduceTreeWalk(Root->Left, Root,
                            sortedvector,
                            nmax);
         }
         else
         {
-            // record the number
-            printf("num = %d\n", nmax);
+            // record the smallest number
+            //printf("num = %d\n", nmax);
             sortedvector[nmax] = Root->key;
             nmax++;
  
-            //delete the node with smallest key
+            //delete Root
+            //if do not have right subtree, delete the node with smallest key
             if (Root->Right==NULL)
             {
                 Root = NULL;
                 delete Root;
             }
-                //DeleteTree(Root);
+            // if the the current node is the root node of whole tree
             else if (UpperNode==Root)   // the top layer
             {
                 Root = Root->Right;
-                //delete Root;
             }
-            else
+            else //put the right node of the current node as its uppernode->right
             {
                 UpperNode->Left = Root->Right;
-                Root = NULL;
-                delete Root;
             }
 
             //print tree
             //printTree(Root, OutputFile);
             
         }
-
-
-        //char str1[10];
-        //sprintf(str1, "%2d", nmax);
-        //OutputFile = strcat(OutputFile,str1);
-        
-        //and the right subtree
-        //InorderTreeWalk(Root->Right,
-        //                sortedvector,
-        //                nmax);
-        
-        
-        
-        //first traverse the left subtree
-//        ReduceTreeWalk(Root->Right, Root,
-//                       sortedvector,
-//                       nmax);
-        
     }
     return;  
 }
-
-
-
 
 
 

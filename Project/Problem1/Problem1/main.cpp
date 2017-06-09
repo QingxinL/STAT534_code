@@ -16,13 +16,39 @@
 #include "vectors.h"
 #include "tree.h"
 
+//open a file and return the count of numbers
+int countNumbers(char* filename)
+{
+    int count=0;
+    FILE* in = fopen(filename,"r");
+    
+    if(NULL==in)
+    {
+        printf("Cannot open file [%s]\n",filename);
+    }
+    
+    double s;
+    while(fscanf(in,"%lf",&s)==1)
+    {
+        count++;
+    }
+    
+    fclose(in);
+    
+    return count;
+}
+
 int main()
 {
     int i;
-    int n = 8;
+    //int n = 8;
     
     char InputFile[] = "somenumbers.txt";
     char OutputFile[] = "mybinarytree.dot";
+//    char OutputFileTemp[] = "mybinarytreeTemp.dot";
+    
+    int n = countNumbers(InputFile);
+    printf("n= %d\n", n);
     
     //initialise a vector of length n
     double* vector = allocvector(n);
@@ -42,21 +68,10 @@ int main()
         treeInsert(mytree,vector[i]);
     }
     
-    //sort in increasing order by traversing the tree in inorder
-    double* vectorIncreasing = allocvector(n);
-    
-    i = 0;
-    InorderTreeWalk(mytree,vectorIncreasing,i);
-    
-    printf("Vector sorted in increasing order\n");
-    printvector(vectorIncreasing,n);
-    printf("\n\n");
-    
     //print the tree in Graphviz format
     printTree(mytree,OutputFile);
     
-    //
-    
+    // sort in increasing order by finding the smallest node in the tree
     int count = 0;
     double* vectorIncreasingNew = allocvector(n);
     for(i=0;i<n;i++)
@@ -64,17 +79,22 @@ int main()
         ReduceTreeWalk(mytree, mytree,
                        vectorIncreasingNew,
                        count);
+        
+ //       printTree(mytree,OutputFileTemp);
+        
     }
     
+    printf("Vector sorted in increasing order\n");
     printvector(vectorIncreasingNew,n);
     printf("\n\n");
+    
     
     //delete the tree
     DeleteTree(mytree);
     
     //free the memory
     freevector(vector);
-    freevector(vectorIncreasing);
+    freevector(vectorIncreasingNew);
     
     return(1);
 }
